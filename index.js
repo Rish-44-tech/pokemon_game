@@ -4,24 +4,27 @@ localStorage.setItem("captured_arr",captured_arr);
 localStorage.setItem("points",points);
 
 async function checkPower(){
-    const input_pok=document.querySelector("input").value;
+    const input_pok=document.querySelector("input").value.toUpperCase();
     const given_name=document.getElementById("naam").innerHTML;
     const givenstatname=document.getElementById("statname").innerHTML;
-    const givenstat=document.getElementById("statval").innerHTML;
-    const url= "https://pokeapi.co/api/v2/pokemon/"+(input_pok);
+    const givenstat=Number(document.getElementById("statval").innerHTML);
     let points=Number(localStorage.getItem("points"));
+    const url= "https://pokeapi.co/api/v2/pokemon/"+(input_pok);
+    try{
     const response=await fetch(url);
     const data=await response.json();
+    
     for(let i=0;i<6;i++){
+
         if(data["stats"][i]["stat"]["name"].toUpperCase()==givenstatname){
-            const input_stat=data["stats"][i]["base_stat"];
+            const input_stat=Number(data["stats"][i]["base_stat"]);
             if(input_stat>givenstat){
                 if(captured_arr.includes(input_pok)){
                     points+=givenstat;
                     captured_arr.push(given_name);
                     localStorage.setItem("captured_arr",captured_arr)
                     localStorage.setItem("points",points);
-                    document.getElementById("out").innerHTML="<p style='color:#4CAF50'>Congratulations! You gained "+(input_stat-givenstat)+" points and captured "+given_name+".</p>";
+                    document.getElementById("out").innerHTML="<p style='color:#4CAF50'>CONGRATULATIONS! "+input_pok.toUpperCase()+"'S "+givenstatname+"("+input_stat+") WAS HIGHER. YOU GAINED "+(input_stat-givenstat)+" POINTS AND CAPTURED "+given_name+".</p>";
                 }
                 else{
                     points+=(givenstat-input_stat);
@@ -34,12 +37,14 @@ async function checkPower(){
             else{
                 points-=givenstat;
                 localStorage.setItem("points",points);
-                document.getElementById("out").innerHTML="<p style='color:red'>Failed! "+input_pok.toUpperCase()+"'S attack was not higher. You lost "+(givenstat)+" points.</p>";
+                document.getElementById("out").innerHTML="<p style='color:red'>FAILED! "+input_pok.toUpperCase()+"'S "+givenstatname+"("+input_stat+") WAS NOT HIGHER. YOU LOST "+(givenstat)+" POINTS.</p>";
             }
-            break;
+            
         }
+    }}catch(error){
+        document.getElementById("out").innerHTML="<p style='color:red;'>"+input_pok+" not found.</p>";
     }
-    setTimeout(gamescreen,1000);
+    setTimeout(gamescreen1,2000);
 }
 
 
@@ -58,6 +63,9 @@ async function apicall(){
     document.getElementById("naam").innerHTML=String(naam).toUpperCase();
     document.getElementById("statname").innerHTML=String(statname).toUpperCase();
     document.getElementById("statval").innerHTML=statvalue;
+    localStorage.setItem("naam",String(naam).toUpperCase());
+    localStorage.setItem("statname",String(statname).toUpperCase());
+    localStorage.setItem("statval",statvalue);
 }
 
 
@@ -65,8 +73,10 @@ async function apicall(){
 function gamescreen(){
     const startcontent=document.querySelector(".startcontent");
     const oldgamecont=document.querySelector(".gamecont");
+    const capturedcont=document.querySelector(".capturedcont")
     if(startcontent!=null){startcontent.remove();}
     if(oldgamecont!=null){oldgamecont.remove();}
+    if(capturedcont!=null){capturedcont.remove();}
 
     let container=document.querySelector(".container");
     const gamecont=document.createElement("div");
@@ -82,11 +92,11 @@ function gamescreen(){
 
     const y=document.createElement("div");
     y.classList.add("challenge");
-    y.innerHTML="<h2 style='color:#0411a4ff;'>Capture Challenge</h2> <p style='color:grey; font-weight:bolder;'>Pokemon to Out-Stat<br><span style='color:black;' class='pokspan' id='naam'></span></p>";
+    y.innerHTML="<h2 style='color:#0411a4ff;'>Capture Challenge</h2> <p style='color:grey; font-weight:bolder;'>Pokemon to Out-Stat<br><span style='color:black;' class='pokspan' id='naam'>"+localStorage.getItem("naam")+"</span></p>";
 
     const q=document.createElement("div");
     q.classList.add("challengin");
-    q.innerHTML="<p style='padding:2px;'>Target Base-Stat ( <span id='statname'></span> )<br><br><span style='color:#703BE7;' class='pokspan' id='statval'></span></p>";
+    q.innerHTML="<p style='padding:2px;'>Target Base-Stat ( <span id='statname'>"+localStorage.getItem("statname")+"</span> )<br><br><span style='color:#703BE7;' class='pokspan' id='statval'>"+localStorage.getItem("statval")+"</span></p>";
     y.appendChild(q);
     gamecont.appendChild(y);
 
@@ -96,6 +106,9 @@ function gamescreen(){
     z.style["margin"]="5px 0 20px 0";
     z.setAttribute("placeholder"," Enter a Pokemon name with higher stat...")
     gamecont.appendChild(z);
+    z.addEventListener("keydown",(event)=>{
+        if(event.key==="Enter"){checkPower();}
+    })
 
     const a=document.createElement("button");
     a.classList.add("a")
@@ -105,6 +118,7 @@ function gamescreen(){
     a.style["color"]="white"
     gamecont.appendChild(a);
     a.addEventListener("click",checkPower);
+  
     
     const b=document.createElement("div");
     b.setAttribute("id","out");
@@ -127,13 +141,18 @@ function gamescreen(){
     btt2.innerHTML="View Captured ["+captured_arr.length+"]";
     btt2.style["backgroundColor"]="#a8ade0ff";
     btt2.style["color"]="#0411a4ff";
-    btt2.addEventListener("click",viewCaptured)
+    btt2.addEventListener("click",viewCaptured);
 
     bttcont.appendChild(btt1);
     bttcont.appendChild(btt2);
     gamecont.appendChild(bttcont);
+}
+
+function gamescreen1(){
+    gamescreen();
     apicall();
 }
+
 
 function viewCaptured(){
     const gameconts=document.querySelector(".gamecont");
@@ -158,8 +177,10 @@ function viewCaptured(){
     btn3.style["color"]="white";
     btn3.style["margin-top"]="30px"
     capturedcont.appendChild(btn3);
+    btn3.addEventListener("click",gamescreen);
 }
-document.querySelector(".start").addEventListener("click",gamescreen);
+
+document.querySelector(".start").addEventListener("click",gamescreen1);
 
 
 
