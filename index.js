@@ -148,7 +148,7 @@ function viewCaptured(){
     for(let i of captured_arr){
         const rty=document.createElement("div");
         rty.classList.add("captured-element");
-        rty.innerHTML="<h3>"+i+"</h3>";
+        rty.innerHTML="<p style='margin:auto;margin-top:10px;'>"+i+"</p>";
         capturedcont.appendChild(rty);
     }
     const btn3=document.createElement("button")
