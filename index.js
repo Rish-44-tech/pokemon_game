@@ -1,32 +1,166 @@
-function capturedpokemon(){
-    document.querySelector("button").addEventListener("click",function (){
-        captured++;
-        this.innerHTML="View Captured ["+captured+"]";
-    });
+let captured_arr=[]
+const points=1000;
+localStorage.setItem("captured_arr",captured_arr);
+localStorage.setItem("points",points);
+
+async function checkPower(){
+    const input_pok=document.querySelector("input").value;
+    const given_name=document.getElementById("naam").innerHTML;
+    const givenstatname=document.getElementById("statname").innerHTML;
+    const givenstat=document.getElementById("statval").innerHTML;
+    const url= "https://pokeapi.co/api/v2/pokemon/"+(input_pok);
+    let points=Number(localStorage.getItem("points"));
+    const response=await fetch(url);
+    const data=await response.json();
+    for(let i=0;i<6;i++){
+        if(data["stats"][i]["stat"]["name"].toUpperCase()==givenstatname){
+            const input_stat=data["stats"][i]["base_stat"];
+            if(input_stat>givenstat){
+                if(captured_arr.includes(input_pok)){
+                    points+=givenstat;
+                    captured_arr.push(given_name);
+                    localStorage.setItem("captured_arr",captured_arr)
+                    localStorage.setItem("points",points);
+                    document.getElementById("out").innerHTML="<p style='color:#4CAF50'>Congratulations! You gained "+(input_stat-givenstat)+" points and captured "+given_name+".</p>";
+                }
+                else{
+                    points+=(givenstat-input_stat);
+                    captured_arr.push(given_name);
+                    localStorage.setItem("captured_arr",captured_arr)
+                    localStorage.setItem("points",points);
+                    document.getElementById("out").innerHTML="<p style='color:orange'>Used uncaptured pokemon! You lost "+(input_stat-givenstat)+" points but captured "+given_name+".</p>";
+                }
+            }
+            else{
+                points-=givenstat;
+                localStorage.setItem("points",points);
+                document.getElementById("out").innerHTML="<p style='color:red'>Failed! "+input_pok.toUpperCase()+"'S attack was not higher. You lost "+(givenstat)+" points.</p>";
+            }
+            break;
+        }
+    }
+    setTimeout(gamescreen,1000);
 }
 
-let points=1000
+
+async function apicall(){
+    const num1=Math.floor(Math.random()*898);  //as 898 pokemons index from 0 to 897
+    const num2=Math.floor(Math.random()*6)     // as 6 types of stats index from 0 to 5
+    const url1 = "https://pokeapi.co/api/v2/pokemon?limit=898";
+    const response = await fetch(url1);
+    const data = await response.json();
+    let naam=data["results"][num1]["name"];
+    const url2= "https://pokeapi.co/api/v2/pokemon/"+data["results"][num1]["name"];
+    const response2=await fetch(url2);
+    const data2=await response2.json();
+    let statname=data2["stats"][num2]["stat"]["name"];
+    let statvalue=data2["stats"][num2]["base_stat"]
+    document.getElementById("naam").innerHTML=String(naam).toUpperCase();
+    document.getElementById("statname").innerHTML=String(statname).toUpperCase();
+    document.getElementById("statval").innerHTML=statvalue;
+}
+
+
+
 function gamescreen(){
+    const startcontent=document.querySelector(".startcontent");
+    const oldgamecont=document.querySelector(".gamecont");
+    if(startcontent!=null){startcontent.remove();}
+    if(oldgamecont!=null){oldgamecont.remove();}
+
+    let container=document.querySelector(".container");
+    const gamecont=document.createElement("div");
+    gamecont.classList.add("gamecont");
+    container.appendChild(gamecont);
+
     const x=document.createElement("div");
-    x.classList.add("gamecontent");
-    x.classList.add("point");
-    x.innerHTML="Balance: <span style='color:green; font-size:larger; font-weight:bold;'>"+points+"</span> P";
+    x.style["backgroundColor"]="lightyellow";
+    x.style["border"]="1px solid yellow";
+    x.style["margin-top"]="20px";
+    x.innerHTML="Balance: <span style='color:green; font-size:larger; font-weight:bold;'>"+localStorage.getItem("points")+"</span> P";
+    gamecont.appendChild(x);
 
     const y=document.createElement("div");
-    y.classList.add("gamecontent");
     y.classList.add("challenge");
-    y.innerHTML="";
+    y.innerHTML="<h2 style='color:#0411a4ff;'>Capture Challenge</h2> <p style='color:grey; font-weight:bolder;'>Pokemon to Out-Stat<br><span style='color:black;' class='pokspan' id='naam'></span></p>";
+
+    const q=document.createElement("div");
+    q.classList.add("challengin");
+    q.innerHTML="<p style='padding:2px;'>Target Base-Stat ( <span id='statname'></span> )<br><br><span style='color:#703BE7;' class='pokspan' id='statval'></span></p>";
+    y.appendChild(q);
+    gamecont.appendChild(y);
 
     const z=document.createElement("input");
-    z.setAttribute(placeholder,"Enter a pokemon name with higher stat...");
-    
-    
-    let container=document.querySelector(".container");
-    container.appendChild(x);
-    container.appendChild(z);
+    z.classList.add("a")
+    z.style["border"]="1px solid lightgray";
+    z.style["margin"]="5px 0 20px 0";
+    z.setAttribute("placeholder"," Enter a Pokemon name with higher stat...")
+    gamecont.appendChild(z);
 
+    const a=document.createElement("button");
+    a.classList.add("a")
+    a.classList.add("checkpowerbtn");
+    a.innerHTML="Check Power"
+    a.style["backgroundColor"]="#4CAF50"
+    a.style["color"]="white"
+    gamecont.appendChild(a);
+    a.addEventListener("click",checkPower);
+    
+    const b=document.createElement("div");
+    b.setAttribute("id","out");
+    b.style["height"]="100px";
+    b.style["display"]="flex";
+    b.style["justifyContent"]="center";
+    gamecont.appendChild(b);
+
+
+    const bttcont=document.createElement("div");
+    bttcont.classList.add("buttons-container");
+
+    const btt1=document.createElement("button");
+    btt1.classList.add("a")
+    btt1.innerHTML="New Challenge"
+    btt1.style["backgroundColor"]="lightgray";
+
+    const btt2=document.createElement("button")
+    btt2.classList.add("a")
+    btt2.innerHTML="View Captured ["+captured_arr.length+"]";
+    btt2.style["backgroundColor"]="#a8ade0ff";
+    btt2.style["color"]="#0411a4ff";
+    btt2.addEventListener("click",viewCaptured)
+
+    bttcont.appendChild(btt1);
+    bttcont.appendChild(btt2);
+    gamecont.appendChild(bttcont);
+    apicall();
 }
-gamescreen()
+
+function viewCaptured(){
+    const gameconts=document.querySelector(".gamecont");
+    gameconts.remove();
+
+    let container=document.querySelector(".container");
+    const capturedcont=document.createElement("div");
+    capturedcont.classList.add("capturedcont");
+    capturedcont.innerHTML="<h2>Your Captured Pokemon</h2>"
+    container.appendChild(capturedcont);
+
+    for(let i of captured_arr){
+        const rty=document.createElement("div");
+        rty.classList.add("captured-element");
+        rty.innerHTML="<h3>"+i+"</h3>";
+        capturedcont.appendChild(rty);
+    }
+    const btn3=document.createElement("button")
+    btn3.classList.add("a");
+    btn3.innerHTML="Back to Challenge"
+    btn3.style["backgroundColor"]="#703BE7";
+    btn3.style["color"]="white";
+    btn3.style["margin-top"]="30px"
+    capturedcont.appendChild(btn3);
+}
+document.querySelector(".start").addEventListener("click",gamescreen);
+
 
 
     

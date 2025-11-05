@@ -33,3 +33,32 @@ body{
     padding-top:20px ;
     gap: 10px;
 }
+.challenge{
+    background-color: rgb(192, 195, 233);
+    border-radius: 5px;
+    box-shadow: 0 0 5px 5px lightgray;
+    padding: 5px;
+    margin: 25px;
+
+}
+.challengin{
+    background-color: white;
+    color: grey;
+    border-radius: 5px;
+    padding: 3px;
+    font-size: smaller;
+}
+.pokspan{
+    font-size: xx-large;
+    font-weight: bolder;
+}
+.capturedcont{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.captured-element{
+    background-color: lightgray;
+    height: 35px;
+    border-radius: 5px;   
+}
