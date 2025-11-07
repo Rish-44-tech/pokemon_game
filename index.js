@@ -207,6 +207,7 @@ function skip(){
     const ptsded=Math.floor((Number(document.getElementById("statval").innerHTML))/2);
     let points=Number(localStorage.getItem("points"));
     points-=ptsded;
+    document.getElementById("out").innerHTML="<p style='color:orange'>Skipped! You lost "+(ptsded)+" points.</p>";
     localStorage.setItem("points",points);
     const x=document.getElementById("pointsdiv").innerHTML="Balance: <span style='color:green; font-size:larger; font-weight:bold;'>"+localStorage.getItem("points")+"</span> P";
     apicall();
@@ -216,6 +217,7 @@ function newchallenge(){
     const ptsded=Number(document.getElementById("statval").innerHTML);
     let points=Number(localStorage.getItem("points"));
     points-=ptsded;
+    document.getElementById("out").innerHTML="<p style='color:orange'>Abandoned! You lost "+(ptsded)+" points.</p>";
     localStorage.setItem("points",points);
     const x=document.getElementById("pointsdiv").innerHTML="Balance: <span style='color:green; font-size:larger; font-weight:bold;'>"+localStorage.getItem("points")+"</span> P";
     apicall();
