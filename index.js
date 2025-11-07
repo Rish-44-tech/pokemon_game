@@ -1,14 +1,10 @@
-let captured_arr=[]
-const points=1000;
-localStorage.setItem("captured_arr",captured_arr);
-localStorage.setItem("points",points);
-
 async function checkPower(){
     const input_pok=document.querySelector("input").value.toUpperCase();
     const given_name=document.getElementById("naam").innerHTML;
     const givenstatname=document.getElementById("statname").innerHTML;
     const givenstat=Number(document.getElementById("statval").innerHTML);
     let points=Number(localStorage.getItem("points"));
+    let captured_arr=JSON.parse(localStorage.getItem("captured_arr"))
     const url= "https://pokeapi.co/api/v2/pokemon/"+(input_pok);
     try{
     const response=await fetch(url);
@@ -22,14 +18,14 @@ async function checkPower(){
                 if(captured_arr.includes(input_pok)){
                     points+=givenstat;
                     captured_arr.push(given_name);
-                    localStorage.setItem("captured_arr",captured_arr)
+                    localStorage.setItem("captured_arr",JSON.stringify(captured_arr));
                     localStorage.setItem("points",points);
                     document.getElementById("out").innerHTML="<p style='color:#4CAF50'>CONGRATULATIONS! "+input_pok.toUpperCase()+"'S "+givenstatname+"("+input_stat+") WAS HIGHER. YOU GAINED "+(input_stat-givenstat)+" POINTS AND CAPTURED "+given_name+".</p>";
                 }
                 else{
                     points+=(givenstat-input_stat);
                     captured_arr.push(given_name);
-                    localStorage.setItem("captured_arr",captured_arr)
+                    localStorage.setItem("captured_arr",JSON.stringify(captured_arr));
                     localStorage.setItem("points",points);
                     document.getElementById("out").innerHTML="<p style='color:orange'>Used uncaptured pokemon! You lost "+(input_stat-givenstat)+" points but captured "+given_name+".</p>";
                 }
@@ -44,7 +40,7 @@ async function checkPower(){
     }}catch(error){
         document.getElementById("out").innerHTML="<p style='color:red;'>"+input_pok+" not found.</p>";
     }
-    setTimeout(gamescreen1,2000);
+    setTimeout(gamescreen3,1000);
 }
 
 
@@ -84,6 +80,7 @@ function gamescreen(){
     container.appendChild(gamecont);
 
     const x=document.createElement("div");
+    x.setAttribute("id","pointsdiv");
     x.style["backgroundColor"]="lightyellow";
     x.style["border"]="1px solid yellow";
     x.style["margin-top"]="20px";
@@ -133,29 +130,55 @@ function gamescreen(){
 
     const btt1=document.createElement("button");
     btt1.classList.add("a")
+    btt1.setAttribute("id","new-chall");
     btt1.innerHTML="New Challenge"
     btt1.style["backgroundColor"]="lightgray";
+    btt1.addEventListener("click",newchallenge);
 
     const btt2=document.createElement("button")
     btt2.classList.add("a")
-    btt2.innerHTML="View Captured ["+captured_arr.length+"]";
+    btt2.innerHTML="View Captured ["+JSON.parse(localStorage.getItem("captured_arr")).length+"]";
     btt2.style["backgroundColor"]="#a8ade0ff";
     btt2.style["color"]="#0411a4ff";
     btt2.addEventListener("click",viewCaptured);
 
-    bttcont.appendChild(btt1);
     bttcont.appendChild(btt2);
+    bttcont.appendChild(btt1);
     gamecont.appendChild(bttcont);
+
 }
 
 function gamescreen1(){
+    const captured_arr=[]
+    const points=1000;
+    localStorage.setItem("captured_arr",JSON.stringify(captured_arr));
+    localStorage.setItem("points",points);
     gamescreen();
+    apicall();
+    localStorage.setItem("loadedonce","true");
+}
+function gamescreen2(){
+    gamescreen();
+    const btt=document.getElementById("new-chall");
+    btt.remove();
+    const bttcont=document.querySelector(".buttons-container");
+    const skipbtt=document.createElement("button");
+    skipbtt.classList.add("a")
+    skipbtt.setAttribute("id","skip");
+    skipbtt.innerHTML="Skip"
+    skipbtt.style["backgroundColor"]="lightgray";
+    skipbtt.addEventListener("click",skip);
+    bttcont.appendChild(skipbtt);
+}
+function gamescreen3(){
+    gamescreen2();
     apicall();
 }
 
 
 function viewCaptured(){
     const gameconts=document.querySelector(".gamecont");
+    const captured_arr=JSON.parse(localStorage.getItem("captured_arr"));
     gameconts.remove();
 
     let container=document.querySelector(".container");
@@ -177,10 +200,33 @@ function viewCaptured(){
     btn3.style["color"]="white";
     btn3.style["margin-top"]="30px"
     capturedcont.appendChild(btn3);
-    btn3.addEventListener("click",gamescreen);
+    btn3.addEventListener("click",gamescreen2);
+}
+
+function skip(){
+    const ptsded=Math.floor((Number(document.getElementById("statval").innerHTML))/2);
+    let points=Number(localStorage.getItem("points"));
+    points-=ptsded;
+    localStorage.setItem("points",points);
+    const x=document.getElementById("pointsdiv").innerHTML="Balance: <span style='color:green; font-size:larger; font-weight:bold;'>"+localStorage.getItem("points")+"</span> P";
+    apicall();
+}
+
+function newchallenge(){
+    const ptsded=Number(document.getElementById("statval").innerHTML);
+    let points=Number(localStorage.getItem("points"));
+    points-=ptsded;
+    localStorage.setItem("points",points);
+    const x=document.getElementById("pointsdiv").innerHTML="Balance: <span style='color:green; font-size:larger; font-weight:bold;'>"+localStorage.getItem("points")+"</span> P";
+    apicall();
 }
 
 document.querySelector(".start").addEventListener("click",gamescreen1);
+window.addEventListener("load",()=>{
+    if (localStorage.getItem("loadedonce")==="true"){
+         gamescreen2(); 
+         }
+});
 
 
 
