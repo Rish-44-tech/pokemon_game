@@ -62,3 +62,21 @@ body{
     height: 35px;
     border-radius: 5px;   
 }
+.statdiv{
+    display: flex;
+    background-color: lightyellow;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 5px yellow;
+    flex-direction: column;
+    gap: 5px;
+    padding-bottom: 5px;
+}
+.stat-title{
+    color:grey;
+    font-size: larger;
+}
+.stat{
+    color:green;
+    font-size: large;
+    font-weight: bolder;
+}
