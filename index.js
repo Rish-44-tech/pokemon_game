@@ -89,7 +89,7 @@ function gamescreen(){
 
     const y=document.createElement("div");
     y.classList.add("challenge");
-    y.innerHTML="<h2 style='color:#0411a4ff;'>Capture Challenge</h2> <p style='color:grey; font-weight:bolder;'>Pokemon to Out-Stat<br><span style='color:black;' class='pokspan' id='naam'>"+localStorage.getItem("naam")+"</span></p>";
+    y.innerHTML="<h2 style='#0411a4ff;'>Capture Challenge</h2> <p style='color:grey; font-weight:bolder;'>Pokemon to Out-Stat<br><span style='color:black;' class='pokspan' id='naam'>"+localStorage.getItem("naam")+"</span></p>";
 
     const q=document.createElement("div");
     q.classList.add("challengin");
@@ -113,7 +113,7 @@ function gamescreen(){
     a.innerHTML="Check Power"
     a.style["backgroundColor"]="#4CAF50"
     a.style["color"]="white"
-    gamecont.appendChild(a);
+    gamecont.appendChild(a);color:
     a.addEventListener("click",checkPower);
   
     
@@ -178,13 +178,15 @@ function gamescreen3(){
 
 function viewCaptured(){
     const gameconts=document.querySelector(".gamecont");
+    const statdiv=document.querySelector(".statdiv");
     const captured_arr=JSON.parse(localStorage.getItem("captured_arr"));
-    gameconts.remove();
+    if(gameconts!=null){gameconts.remove()};
+    if(statdiv!=null){statdiv.remove()};
 
     let container=document.querySelector(".container");
     const capturedcont=document.createElement("div");
     capturedcont.classList.add("capturedcont");
-    capturedcont.innerHTML="<h2>Your Captured Pokemon</h2>"
+    capturedcont.innerHTML="<h2 style='margin-bottom:0;'>Your Captured Pokemon</h2><p style='margin-top:0;'>Click on pokemon name to see stats!</p>";
     container.appendChild(capturedcont);
 
     for(let i of captured_arr){
@@ -192,7 +194,55 @@ function viewCaptured(){
         rty.classList.add("captured-element");
         rty.setAttribute("id",i);
         rty.innerHTML="<p style='margin:auto;margin-top:10px;'>"+i+"</p>";
-        rty.addEventListener("click",showstats(i));
+        rty.addEventListener("click",async function (){
+            const url= "https://pokeapi.co/api/v2/pokemon/"+this.getAttribute("id");
+            const response=await fetch(url);
+            const data=await response.json();
+            const capturedcont=document.querySelector(".capturedcont");
+            capturedcont.remove();
+
+            let container=document.querySelector(".container");
+            const statdiv=document.createElement("div");
+            statdiv.classList.add("statdiv");
+            container.appendChild(statdiv);
+
+            const head=document.createElement("div");
+            head.innerHTML="<h2 style='color:black; margin-bottom:0;'>"+this.getAttribute("id")+"</h2>";
+            statdiv.appendChild(head);
+
+            const hp=document.createElement("div");
+            const attack=document.createElement("div");
+            const defense=document.createElement("div");
+            const special_attack=document.createElement("div");
+            const special_defense=document.createElement("div");
+            const speed=document.createElement("div");
+            hp.innerHTML="<span class='stat-title'>HP: </span><span class='stat'>   "+data["stats"][0]["base_stat"]+"</span>";
+            attack.innerHTML="<span class='stat-title'>ATTACK: </span><span class='stat'>   "+data["stats"][1]["base_stat"]+"</span>";
+            defense.innerHTML="<span class='stat-title'>DEFENSE: </span><span class='stat'> "+data["stats"][2]["base_stat"]+"</span>";
+            special_attack.innerHTML="<span class='stat-title'>SPECIAL-ATTACK: </span><span class='stat'>   "+data["stats"][3]["base_stat"]+"</span>";
+            special_defense.innerHTML="<span class='stat-title'>SPECIAL-DEFENSE: </span><span class='stat'> "+data["stats"][4]["base_stat"]+"</span>";
+            speed.innerHTML="<span class='stat-title'>SPEED: </span><span class='stat'> "+data["stats"][5]["base_stat"]+"</span>";
+            statdiv.appendChild(hp);
+            statdiv.appendChild(attack);
+            statdiv.appendChild(defense);
+            statdiv.appendChild(special_attack);
+            statdiv.appendChild(special_defense);
+            statdiv.appendChild(speed);
+
+            const btn=document.createElement("button")
+            btn.classList.add("a");
+            btn.innerHTML="View Captured ["+JSON.parse(localStorage.getItem("captured_arr")).length+"]";
+            btn.style["backgroundColor"]="black";
+            btn.style["color"]="white";
+            btn.style["margin-top"]="30px"
+            statdiv.appendChild(btn);
+            btn.addEventListener("click",viewCaptured);
+
+ //if(data["stats"][i]["stat"]["name"].toUpperCase()==givenstatname){
+          //  const input_stat=Number(data["stats"][i]["base_stat"]);
+          //hp attack defense special-attack special-defense speed
+
+});
         capturedcont.appendChild(rty);
     }
     const btn3=document.createElement("button")
@@ -230,17 +280,7 @@ function gpe(){
     document.getElementById("out").innerHTML="";
 }
 
-async function showstats(name){
-    const url= "https://pokeapi.co/api/v2/pokemon/"+(name);
-    const response=await fetch(url);
-    const data=await response.json();
-    const capturedcont=document.querySelector(".capturedcont");
-    capturedcont.remove();
- //if(data["stats"][i]["stat"]["name"].toUpperCase()==givenstatname){
-          //  const input_stat=Number(data["stats"][i]["base_stat"]);
-          //hp attack defense special-attack special-defense speed
 
-};
 
 document.querySelector(".start").addEventListener("click",gamescreen1);
 window.addEventListener("load",()=>{
