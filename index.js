@@ -190,7 +190,9 @@ function viewCaptured(){
     for(let i of captured_arr){
         const rty=document.createElement("div");
         rty.classList.add("captured-element");
+        rty.setAttribute("id",i);
         rty.innerHTML="<p style='margin:auto;margin-top:10px;'>"+i+"</p>";
+        rty.addEventListener("click",showstats(i));
         capturedcont.appendChild(rty);
     }
     const btn3=document.createElement("button")
@@ -227,6 +229,18 @@ function newchallenge(){
 function gpe(){
     document.getElementById("out").innerHTML="";
 }
+
+async function showstats(name){
+    const url= "https://pokeapi.co/api/v2/pokemon/"+(name);
+    const response=await fetch(url);
+    const data=await response.json();
+    const capturedcont=document.querySelector(".capturedcont");
+    capturedcont.remove();
+ //if(data["stats"][i]["stat"]["name"].toUpperCase()==givenstatname){
+          //  const input_stat=Number(data["stats"][i]["base_stat"]);
+          //hp attack defense special-attack special-defense speed
+
+};
 
 document.querySelector(".start").addEventListener("click",gamescreen1);
 window.addEventListener("load",()=>{
